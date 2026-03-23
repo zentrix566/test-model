@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>豆包文生图 / 图生图工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            text-shadow: 0 0 20px rgba(100, 150, 255, 0.5);
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #88bbff;
+        }
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            font-size: 14px;
+            resize: vertical;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        input[type="file"] {
+            padding: 10px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 14px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .btn-clear {
+            background: linear-gradient(135deg, #666 0%, #444 100%);
+            padding: 14px 20px;
+            margin-left: 10px;
+        }
+        .loading {
+            display: none;
+            margin-left: 10px;
+        }
+        .loading.active {
+            display: inline-block;
+        }
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .result {
+            margin-top: 20px;
+            display: none;
+        }
+        .result.active {
+            display: block;
+        }
+        .result-info {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(0, 200, 0, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 200, 0, 0.3);
+        }
+        .result-image {
+            text-align: center;
+        }
+        .result-image img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        .error {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff8888;
+            display: none;
+        }
+        .error.active {
+            display: block;
+        }
+        .image-preview {
+            margin-top: 10px;
+            max-width: 300px;
+            display: none;
+        }
+        .image-preview img {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .image-preview.active {
+            display: block;
+        }
+        h2 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            color: #88bbff;
+        }
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .history-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s;
+        }
+        .history-item:hover {
+            transform: scale(1.02);
+        }
+        .history-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        .history-info {
+            padding: 12px;
+            font-size: 12px;
+            color: #aaa;
+        }
+        .history-info div {
+            margin-bottom: 4px;
+        }
+        .history-info a {
+            color: #88bbff;
+            text-decoration: none;
+        }
+        .history-info a:hover {
+            text-decoration: underline;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 30px;
+            color: #fff;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .hint {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 豆包 AI 图像生成</h1>
+
+        <!-- 生成表单 -->
+        <div class="card">
+            <form id="generateForm">
+                <div class="form-group">
+                    <label for="prompt">提示词</label>
+                    <textarea id="prompt" name="prompt" placeholder="输入你想要生成的图片描述..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="image">上传原图（图生图/编辑，可选）</label>
+                    <input type="file" id="image" name="image" accept="image/*">
+                    <div class="image-preview" id="imagePreview">
+                        <img id="previewImg" src="" alt="预览">
+                    </div>
+                    <div class="hint">上传图片后，在提示词中描述你想要修改的内容</div>
+                </div>
+                <div>
+                    <button type="submit" class="btn" id="generateBtn">
+                        开始生成
+                    </button>
+                    <span class="loading" id="loading">
+                        <span class="spinner"></span> 生成中...
+                    </span>
+                    <button type="button" class="btn btn-clear" id="clearBtn">清空</button>
+                </div>
+            </form>
+
+            <div class="error" id="errorBox"></div>
+
+            <div class="result" id="resultBox">
+                <div class="result-info" id="resultInfo"></div>
+                <div class="result-image" id="resultImage"></div>
+            </div>
+        </div>
+
+        <!-- 历史生成记录 -->
+        <div class="card">
+            <h2>历史记录</h2>
+            <div class="history-grid" id="historyGrid">
+                <!-- 由 JavaScript 动态加载 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框放大查看 -->
+    <div class="modal" id="modal" onclick="closeModal(event)">
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <img id="modalImg" src="" alt="">
+    </div>
+
+    <script>
+        const form = document.getElementById('generateForm');
+        const generateBtn = document.getElementById('generateBtn');
+        const loading = document.getElementById('loading');
+        const errorBox = document.getElementById('errorBox');
+        const resultBox = document.getElementById('resultBox');
+        const resultInfo = document.getElementById('resultInfo');
+        const resultImage = document.getElementById('resultImage');
+        const imageInput = document.getElementById('image');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const clearBtn = document.getElementById('clearBtn');
+        const historyGrid = document.getElementById('historyGrid');
+        const modal = document.getElementById('modal');
+        const modalImg = document.getElementById('modalImg');
+
+        // 图片预览
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    imagePreview.classList.add('active');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.classList.remove('active');
+            }
+        });
+
+        // 清空
+        clearBtn.addEventListener('click', function() {
+            document.getElementById('prompt').value = '';
+            imageInput.value = '';
+            imagePreview.classList.remove('active');
+            errorBox.classList.remove('active');
+            resultBox.classList.remove('active');
+        });
+
+        // 提交生成
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const prompt = document.getElementById('prompt').value.trim();
+            if (!prompt) {
+                showError('提示词不能为空');
+                return;
+            }
+
+            generateBtn.disabled = true;
+            loading.classList.add('active');
+            errorBox.classList.remove('active');
+            resultBox.classList.remove('active');
+
+            const startTime = Date.now();
+
+            const formData = new FormData();
+            formData.append('prompt', prompt);
+            const imageFile = imageInput.files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || data.error) {
+                    throw new Error(data.error || '生成失败');
+                }
+
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+
+                // 显示结果
+                showResult(data, elapsed);
+                // 刷新历史列表
+                await loadHistory();
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                generateBtn.disabled = false;
+                loading.classList.remove('active');
+            }
+        });
+
+        function showError(message) {
+            errorBox.textContent = message;
+            errorBox.classList.add('active');
+        }
+
+        function showResult(data, elapsed) {
+            let info = `✅ 生成成功！类型：${data.type}，尺寸：${data.size}，文件大小：${data.size_kb}KB，耗时：${elapsed}秒`;
+            resultInfo.textContent = info;
+            resultImage.innerHTML = `<img src="${data.image_url}" alt="生成结果">`;
+            resultBox.classList.add('active');
+        }
+
+        async function loadHistory() {
+            try {
+                const res = await fetch('/history');
+                const data = await res.json();
+                let html = '';
+                data.images.forEach(img => {
+                    const date = new Date(img.mtime * 1000);
+                    const dateStr = date.toLocaleString('zh-CN');
+                    html += `
+                        <div class="history-item">
+                            <img src="${img.path}" alt="${img.filename}" onclick="openModal('${img.path}')">
+                            <div class="history-info">
+                                <div>${img.filename}</div>
+                                <div>${img.size_kb}KB · ${dateStr}</div>
+                                <div><a href="${img.path}" download target="_blank">下载</a></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                historyGrid.innerHTML = html;
+            } catch (err) {
+                console.error('加载历史失败', err);
+            }
+        }
+
+        function openModal(url) {
+            modalImg.src = url;
+            modal.classList.add('active');
+        }
+
+        function closeModal(e) {
+            if (e && e.target !== modal && e.target !== modal.querySelector('.modal-close')) {
+                return;
+            }
+            modal.classList.remove('active');
+        }
+
+        // 关闭模态框按ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // 页面加载完成后加载历史
+        document.addEventListener('DOMContentLoaded', loadHistory);
+    </script>
+</body>
+</html>

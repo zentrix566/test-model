@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 生成图片展示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 1400px;
+            width: 100%;
+        }
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            text-shadow: 0 0 20px rgba(100, 150, 255, 0.5);
+        }
+        .prompt {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .prompt h2 {
+            color: #88bbff;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+        .prompt p {
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        .image-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            display: block;
+        }
+        .info {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        .download-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .download-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI 生成图像</h1>
+        <div class="prompt">
+            <h2>提示词：</h2>
+            <p>商业级时尚摄影，韩系极简风格，一位模特走在干净的街道，身穿宽松的米白色大衣，柔和的自然光，明亮通透，奶油白滤镜，浅景深模糊背景，高级感。文字叠加设计，居中放置，巨大的白色衬线粗体字 "Natural"，中间是缠绕优雅的白色手写体 "Beauty"，下方是一个白色椭圆边框，内部用无衬线粗体写 "60% OFF"，最底部是纤细的白色手写体 "Winter Sale"，构图极简，留白合理</p>
+        </div>
+        <div class="image-container">
+            <img src="generated_image.jpg" alt="AI生成的商业时尚摄影海报">
+            <div class="info">
+                <span>模型：doubao-seedream-5-0-260128</span>
+                <span>尺寸：1664x2496</span>
+            </div>
+            <div class="buttons">
+                <a href="generated_image.jpg" download="ai-generated-image.jpg" class="download-link">下载图片</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

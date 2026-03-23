@@ -1,0 +1,43 @@
+# 环境变量和密钥文件
+.env
+.env.local
+.env.*
+
+# 生成的图片保存目录
+images/*
+!images/
+
+# 根目录的临时文件和图片
+*.jpeg
+*.jpg
+*.png
+response.json
+generated_image.jpg
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+*.egg-info/
+installdropbox
+venv/
+.env/
